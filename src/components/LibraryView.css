@@ -1,0 +1,181 @@
+.library-view {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+  padding: 60px 24px 40px;
+}
+
+.library-header {
+  text-align: center;
+  margin-bottom: 48px;
+  animation: fadeInUp var(--transition-slow) ease-out;
+}
+.library-settings { margin-top:20px; }
+.library-error { padding:10px 12px; border-radius:var(--radius-sm); background:rgba(248,113,113,.1); color:#f87171; }
+
+.library-title {
+  font-size: 42px;
+  font-weight: 700;
+  letter-spacing: -1px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.library-subtitle {
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.library-content {
+  width: 100%;
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  animation: fadeInUp var(--transition-slow) ease-out 100ms both;
+}
+
+/* Upload Area */
+.upload-area {
+  border: 2px dashed var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: 48px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  background: var(--bg-secondary);
+}
+
+.upload-area:hover,
+.upload-area.drag-over {
+  border-color: var(--accent-primary);
+  background: var(--bg-tertiary);
+  box-shadow: var(--shadow-glow);
+}
+
+.upload-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.upload-text {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.upload-hint {
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
+/* URL Input */
+.url-input-group {
+  display: flex;
+  gap: 8px;
+}
+
+.url-input {
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.url-input:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.1);
+}
+
+.url-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.clipboard-import { display:flex; flex-direction:column; gap:7px; padding:14px; border:1px solid var(--border-subtle); border-radius:var(--radius-md); background:var(--bg-secondary); }
+.clipboard-import label { color:var(--text-primary); font-size:13px; font-weight:650; }
+.clipboard-import textarea { min-height:76px; resize:vertical; padding:11px 12px; border:1px dashed var(--border-default); border-radius:var(--radius-sm); outline:none; background:var(--bg-primary); color:var(--text-primary); font:13px/1.5 inherit; }
+.clipboard-import textarea:focus { border-color:var(--accent-primary); box-shadow:0 0 0 3px rgba(167,139,250,.1); }
+.clipboard-import small { color:var(--text-tertiary); font-size:11px; }
+
+/* Library Grid */
+.library-section {
+  margin-top: 16px;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+
+.library-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.library-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: left;
+  width: 100%;
+  font-family: inherit;
+  color: inherit;
+}
+
+.library-card:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--border-accent);
+  box-shadow: var(--shadow-sm);
+  transform: translateX(4px);
+}
+
+.card-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.card-delete { margin-left:auto; color:var(--text-tertiary); font-size:11px; padding:5px; }
+.card-delete:hover { color:#f87171; }
+
+.card-name {
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-meta {
+  font-size: 12px;
+  color: var(--text-tertiary);
+}

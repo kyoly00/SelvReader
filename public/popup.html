@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SelvReader 설정</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main class="popup">
+      <header class="popup-header">
+        <span class="logo" aria-hidden="true">S</span>
+        <div>
+          <strong>SelvReader</strong>
+          <span>논문과 AI 답변을 읽는 리더</span>
+        </div>
+      </header>
+
+      <p id="status" class="status" role="status">설정을 불러오는 중…</p>
+
+      <section class="settings" aria-label="빠른 설정">
+        <label class="toggle-row">
+          <span>
+            <strong>웹 도구 사용</strong>
+            <small>ChatGPT·Gemini 선택 도구와 PDF 자동 처리를 켭니다.</small>
+          </span>
+          <input id="enabled" type="checkbox" role="switch" />
+        </label>
+        <label class="toggle-row">
+          <span>
+            <strong>PDF를 SelvReader로 자동 열기</strong>
+            <small>일반 PDF 링크를 열 때 자동으로 리더로 전환합니다.</small>
+          </span>
+          <input id="auto-open-pdf" type="checkbox" role="switch" />
+        </label>
+      </section>
+
+      <button id="open-current-pdf" class="primary" type="button">현재 탭의 PDF 열기</button>
+      <button id="open-reader" class="link-button" type="button">SelvReader 라이브러리 열기</button>
+      <p id="message" class="message" aria-live="polite"></p>
+    </main>
+    <script src="popup.js"></script>
+  </body>
+</html>

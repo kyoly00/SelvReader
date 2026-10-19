@@ -1,0 +1,10 @@
+.code-block { margin:15px 0; overflow:hidden; border:1px solid var(--border-subtle); border-radius:var(--radius-md); background:var(--bg-primary); }
+.code-block-toolbar { display:flex; align-items:center; justify-content:space-between; padding:6px 10px; border-bottom:1px solid var(--border-subtle); color:var(--text-tertiary); font:11px/1.4 system-ui,sans-serif; }
+.code-block-toolbar button { border:0; background:transparent; color:var(--text-secondary); cursor:pointer; font:inherit; }
+.code-block > pre { margin:0!important; border-radius:0!important; }
+.hljs-keyword,.hljs-selector-tag,.hljs-literal { color:#c084fc; }
+.hljs-string,.hljs-attr,.hljs-template-tag { color:#86efac; }
+.hljs-number,.hljs-symbol { color:#fbbf24; }
+.hljs-title,.hljs-function { color:#7dd3fc; }
+.hljs-comment,.hljs-quote { color:#94a3b8; font-style:italic; }
+.hljs-built_in,.hljs-type { color:#f9a8d4; }

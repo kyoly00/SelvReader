@@ -1,0 +1,148 @@
+.pdf-viewer-container {
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+  background: var(--bg-primary);
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.pdf-pages {
+  box-sizing: border-box;
+  width: max-content;
+  min-width: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+}
+
+.pdf-loading {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.pdf-render-warning {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  align-self: center;
+  width: max-content;
+  margin: 8px auto;
+  display: flex;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid rgba(248, 113, 113, .35);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  color: #f87171;
+  font-size: 12px;
+}
+.pdf-render-warning span { max-width: 360px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.pdf-render-warning a { color: var(--accent-primary); }
+
+.page-wrapper {
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  background: white;
+  flex-shrink: 0;
+  margin-inline: auto;
+  /* Dimensions set dynamically by JS */
+}
+
+.region-select-mode { cursor: crosshair; }
+.region-select-mode .textLayer { user-select: none; pointer-events: none; }
+.region-selection-box {
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+  border: 2px solid var(--accent-primary);
+  background: rgba(167, 139, 250, .16);
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, .16);
+}
+
+.page-canvas {
+  display: block;
+}
+
+.highlight-layer { position:absolute; inset:0; z-index:3; pointer-events:none; }
+.saved-highlight { position:absolute; border-radius:2px; mix-blend-mode:multiply; }
+.saved-highlight.yellow { background:var(--highlight-yellow); }
+.saved-highlight.green { background:var(--highlight-green); }
+.saved-highlight.blue { background:var(--highlight-blue); }
+.saved-highlight.purple { background:var(--highlight-purple); }
+
+.page-note-anchor { position:absolute; z-index:6; right:7px; }
+.note-marker { display:grid; place-items:center; width:28px; height:28px; padding:0; border:1px solid rgba(124,58,237,.42); border-radius:50%; background:#fff; color:#7c3aed; box-shadow:0 2px 8px rgba(0,0,0,.22); cursor:pointer; }
+.note-marker:hover { transform:scale(1.07); background:#f5f3ff; }
+.note-marker svg { width:17px; height:17px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+.page-note-popover { position:absolute; right:34px; top:14px; transform:translateY(-50%); width:min(270px,calc(100vw - 90px)); max-height:190px; overflow:auto; padding:11px 12px; border:1px solid rgba(124,58,237,.28); border-radius:10px; background:rgba(255,255,255,.98); color:#24202e; box-shadow:0 8px 24px rgba(0,0,0,.22); }
+.page-note-title { margin-bottom:6px; color:#7c3aed; font-size:11px; font-weight:700; }
+.page-note-quote { margin-bottom:7px; color:#777080; font-size:10px; line-height:1.35; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.page-note-body { font-size:12px; line-height:1.55; white-space:pre-wrap; overflow-wrap:anywhere; }
+
+/* PDF.js 5.x text layer. Keep this aligned with pdfjs-dist/web/pdf_viewer.css. */
+.textLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: clip;
+  opacity: 1;
+  line-height: 1;
+  text-align: initial;
+  transform-origin: 0 0;
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
+  forced-color-adjust: none;
+  caret-color: CanvasText;
+  user-select: text;
+  --min-font-size: 1;
+  --text-scale-factor: calc(var(--total-scale-factor) * var(--min-font-size));
+  --min-font-size-inv: calc(1 / var(--min-font-size));
+}
+
+.textLayer :is(span, br) {
+  position: absolute;
+  color: transparent;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0% 0%;
+}
+
+.textLayer > :not(.markedContent),
+.textLayer .markedContent span:not(.markedContent) {
+  z-index: 1;
+  --font-height: 0;
+  --scale-x: 1;
+  --rotate: 0deg;
+  font-size: calc(var(--text-scale-factor) * var(--font-height));
+  transform: rotate(var(--rotate)) scaleX(var(--scale-x)) scale(var(--min-font-size-inv));
+}
+
+.textLayer .markedContent { display: contents; }
+.textLayer span[role="img"] { user-select: none; cursor: default; }
+.textLayer ::selection {
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  text-shadow: none;
+  background: rgba(167, 139, 250, .34);
+}
+.textLayer br::selection { color: transparent; background: transparent; }
+.textLayer .endOfContent {
+  display: block;
+  position: absolute;
+  inset: 100% 0 0;
+  z-index: 0;
+  cursor: default;
+  user-select: none;
+}
+.textLayer.selecting .endOfContent { top: 0; }

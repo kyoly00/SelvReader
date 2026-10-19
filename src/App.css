@@ -1,0 +1,58 @@
+/* ===== App Layout ===== */
+.app {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.app-content {
+  flex: 1;
+  margin-top: var(--toolbar-height);
+  overflow: hidden;
+}
+
+/* ===== Reader Layout (3-panel split) ===== */
+.reader-layout {
+  display: flex;
+}
+
+.panel {
+  height: 100%;
+  overflow: hidden;
+}
+
+.panel-left {
+  flex-shrink: 0;
+  border-right: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-center {
+  flex: 1;
+  min-width: 300px;
+  overflow: hidden;
+}
+
+.panel-right {
+  flex-shrink: 0;
+  border-left: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== Panel Resizer ===== */
+.panel-resizer {
+  width: 4px;
+  cursor: col-resize;
+  background: transparent;
+  transition: background var(--transition-fast);
+  flex-shrink: 0;
+  z-index: var(--z-panel);
+}
+
+.panel-resizer:hover {
+  background: var(--accent-primary);
+}
