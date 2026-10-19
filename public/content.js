@@ -534,7 +534,14 @@ function isIgnoredElement(element) {
 
 function isBlockElement(element) {
   return element.matches('h1,h2,h3,h4,h5,h6,p,pre,blockquote,table,ul,ol,hr,figure,img,[data-code-block="true"],[data-markdown-copy="code-block"]')
+    || isAnnotationBox(element)
     || (isMathElement(element) && isDisplayMath(element));
+}
+
+function isAnnotationBox(element) {
+  if (element.tagName?.toLowerCase() !== 'span') return false;
+  return element.matches?.('span[data-d-component="box"], span.Box-qIMv6G, span[class*="Box-"]')
+    && normalizePlainText(element.innerText || element.textContent || '').length > 0;
 }
 
 function isRichVisualElement(element) {
@@ -595,6 +602,8 @@ function getBlockKind(element) {
     return detectCodeLanguage(element) === 'mermaid' ? 'diagram' : 'code';
   }
   if (isRenderedMermaid(element)) return extractMermaidSource(element) ? 'diagram' : 'html';
+  if (isAnnotationBox(element)) return 'annotation';
+  if (isStructuredDiagramContainer(element)) return 'box';
   if (tag === 'svg' || tag === 'canvas') return 'html';
   if (/^h[1-6]$/.test(tag)) return 'heading';
   if (tag === 'pre') return detectCodeLanguage(element) === 'mermaid' ? 'diagram' : 'code';
@@ -607,13 +616,14 @@ function getBlockKind(element) {
 }
 
 function detectCodeLanguage(element) {
-  const code = element.querySelector('code');
+  const code = element.querySelector('code, .cm-content, [data-editor-search-surface] [contenteditable="true"]');
   const className = code?.className || '';
   const explicit = className.match(/(?:language-|lang-)([\w-]+)/)?.[1];
   if (explicit) return explicit.toLowerCase() === 'mermaid' ? 'mermaid' : explicit.toLowerCase();
   const declared = code?.getAttribute('data-language')
     || element.getAttribute('data-language')
     || element.getAttribute('data-code-language')
+    || element.querySelector?.('[data-language]')?.getAttribute('data-language')
     || element.closest('code-block')?.getAttribute('language');
   if (declared) return declared.toLowerCase();
   const codeText = extractCodeText(element);
@@ -632,17 +642,50 @@ function extractCodeText(element) {
   const source = element.matches?.('[data-code-block-source]')
     ? element
     : element.querySelector?.('[data-code-block-source]') || element;
-  const code = source.matches?.('code') ? source : source.querySelector?.('code, pre > code');
-  let value = code?.innerText || code?.textContent || source.innerText || source.textContent || '';
-  // ChatGPT renders each source line in its own span instead of inserting
-  // literal newlines. innerText normally restores them; this fallback keeps
-  // copied fixtures and browsers that flatten spans readable.
-  if (!value.includes('\n')) {
-    const lines = [...source.querySelectorAll?.('code > span > span, pre > code > span > span, :scope > span > span') || []]
-      .map((line) => line.textContent || '');
-    if (lines.length > 1) value = lines.join('\n');
-  }
+  const code = source.matches?.('code, .cm-content, [data-editor-search-surface] [contenteditable="true"]')
+    ? source
+    : source.querySelector?.('code, pre > code, .cm-content, [data-editor-search-surface] [contenteditable="true"]');
+  const lineTexts = extractCodeLines(source, code);
+  // ChatGPT frequently represents source lines as nested spans without literal
+  // line-feed characters. Prefer those line containers even when innerText has
+  // already flattened the same source into a single line.
+  const rawCode = code?.textContent || '';
+  // textContent preserves the original newline characters inside a single
+  // ChatGPT span. innerText may collapse them when the source is off-screen
+  // or its white-space style has not been applied yet.
+  let value = lineTexts.length > 1
+    ? lineTexts.join('\n')
+    : rawCode.includes('\n') ? rawCode : code?.innerText || rawCode || source.innerText || source.textContent || '';
+  // A flattened fallback can include ChatGPT's visual language badge before
+  // the source. It is UI chrome, not part of the program.
+  const languageLabel = source.closest?.('[data-code-block="true"], [data-markdown-copy="code-block"]')
+    ?.querySelector?.('[data-markdown-copy="exclude"]')?.textContent?.trim();
+  if (languageLabel && !code && value.startsWith(languageLabel)) value = value.slice(languageLabel.length);
   return value.replace(/\r\n?/g, '\n').replace(/\n+$/, '');
+}
+
+function extractCodeLines(source, code) {
+  const roots = [code, source].filter((root, index, values) => root && values.indexOf(root) === index);
+  const selectors = [
+    ':scope > .cm-line',
+    ':scope > span > span',
+    ':scope > span > div',
+    ':scope > div',
+    '[data-line-number] + span',
+    '[data-code-line]',
+  ];
+  for (const root of roots) {
+    for (const selector of selectors) {
+      let nodes = [];
+      try { nodes = [...root.querySelectorAll(selector)]; } catch { continue; }
+      const lines = nodes.map((line) => line.textContent || '');
+      // Empty spans are meaningful: they represent blank lines. Do not drop
+      // them, but require at least two actual line containers to avoid using
+      // syntax-highlight token spans as lines.
+      if (lines.length > 1 && lines.some((line) => /\S/.test(line))) return lines;
+    }
+  }
+  return [];
 }
 
 function looksLikeMermaid(value) {
@@ -661,6 +704,8 @@ function elementToBlockMarkdown(element, kind) {
     const fence = code.includes('```') ? '````' : '```';
     return `${fence}${language}\n${code}\n${fence}`;
   }
+  if (kind === 'box') return boxToMarkdown(element);
+  if (kind === 'annotation') return annotationToMarkdown(element);
   if (kind === 'table') return tableToMarkdown(element);
   if (kind === 'list') return listToMarkdown(element, 0).trimEnd();
   if (kind === 'math') {
@@ -674,6 +719,53 @@ function elementToBlockMarkdown(element, kind) {
   }
   if (kind === 'quote') return inline.split('\n').map((line) => `> ${line}`).join('\n');
   return inline;
+}
+
+function annotationToMarkdown(element) {
+  const text = inlineNodesToMarkdown(element.childNodes).trim();
+  return text ? `> [!IMPORTANT] 주석\n>\n> ${text}` : '';
+}
+
+function boxToMarkdown(element) {
+  const lines = structuredBoxLines(element);
+  if (!lines.length) return normalizePlainText(element.innerText || element.textContent || '');
+  return [
+    '> [!NOTE] 시각화 요약',
+    '>',
+    ...lines.map((line) => `> ${line}`),
+  ].join('\n');
+}
+
+function structuredBoxLines(root) {
+  const lines = [];
+  const push = (value, depth) => {
+    const text = normalizePlainText(value || '');
+    if (!text || text === '→' || text === '↓' || text === '↔') return;
+    const previous = lines.at(-1)?.replace(/^\s*-\s*/, '');
+    if (previous === text) return;
+    lines.push(`${'  '.repeat(Math.min(depth, 4))}- ${text}`);
+  };
+  const visit = (node, depth) => {
+    for (const child of node.children || []) {
+      if (child.matches?.('svg,canvas,button,[aria-hidden="true"]')) continue;
+      const structural = child.matches?.('[data-d-component="box"], [data-d-component="grid"], [data-d-component="grid-item"], [data-d-component="row"]');
+      if (structural) {
+        const directText = [...child.childNodes]
+          .filter((part) => part.nodeType === Node.TEXT_NODE)
+          .map((part) => part.textContent || '').join('');
+        push(directText, depth);
+        visit(child, depth + 1);
+        continue;
+      }
+      if (child.querySelector?.('[data-d-component="box"], [data-d-component="grid"], [data-d-component="grid-item"], [data-d-component="row"]')) {
+        visit(child, depth);
+      } else {
+        push(child.innerText || child.textContent || '', depth);
+      }
+    }
+  };
+  visit(root, 0);
+  return lines;
 }
 
 function inlineNodesToMarkdown(nodes) {

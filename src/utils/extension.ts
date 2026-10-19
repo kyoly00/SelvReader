@@ -38,7 +38,7 @@ export interface AIResult {
 export interface DocumentBlock {
   id: string;
   order: number;
-  kind: 'heading' | 'paragraph' | 'list' | 'quote' | 'code' | 'table' | 'math' | 'image' | 'diagram' | 'html';
+  kind: 'heading' | 'paragraph' | 'list' | 'quote' | 'code' | 'table' | 'math' | 'image' | 'diagram' | 'box' | 'annotation' | 'html';
   text: string;
   markdown?: string;
   language?: string;

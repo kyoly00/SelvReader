@@ -109,7 +109,8 @@ function elementToMarkdown(element: Element, depth = 0): string {
   if (element.matches('[data-code-block="true"],[data-markdown-copy="code-block"]')) {
     const raw = extractClipboardCode(element);
     const label = element.querySelector('[data-markdown-copy="exclude"]')?.textContent || '';
-    const declared = element.getAttribute('data-language') || element.querySelector('code')?.getAttribute('data-language') || '';
+    const declared = element.getAttribute('data-language')
+      || element.querySelector('code, .cm-content, [data-editor-search-surface] [contenteditable="true"]')?.getAttribute('data-language') || '';
     const named = label.match(/\b(python|javascript|typescript|java|c\+\+|cpp|c#|csharp|go|rust|ruby|php|swift|kotlin|sql|bash|shell|json|yaml|xml|html|css|markdown|text)\b/i)?.[1] || '';
     const language = /language-mermaid|\bmermaid\b/i.test(element.querySelector('code')?.className || '') || looksLikeMermaid(raw)
       ? 'mermaid' : (declared || named || /^\s*(?:from\s+\w+\s+import|import\s+\w+|def\s+\w+\s*\(|class\s+\w+\s*[:(])/m.test(raw) ? (declared || named || 'python') : 'text');
@@ -152,13 +153,22 @@ function inlineChildren(element: Element): string {
 
 function extractClipboardCode(element: Element): string {
   const source = element.querySelector('[data-code-block-source]') || element;
-  const code = source.matches('code') ? source : source.querySelector('code');
-  let value = (code as HTMLElement | null)?.innerText || code?.textContent || source.textContent || '';
-  if (!value.includes('\n')) {
-    const lines = [...source.querySelectorAll('code > span > span, pre > code > span > span, :scope > span > span')]
-      .map((line) => line.textContent || '');
-    if (lines.length > 1) value = lines.join('\n');
+  const code = source.matches('code, .cm-content, [data-editor-search-surface] [contenteditable="true"]')
+    ? source
+    : source.querySelector('code, .cm-content, [data-editor-search-surface] [contenteditable="true"]');
+  const roots = [code, source].filter((root, index, values) => root && values.indexOf(root) === index) as Element[];
+  let lines: string[] = [];
+  for (const root of roots) {
+    for (const selector of [':scope > .cm-line', ':scope > span > span', ':scope > span > div', ':scope > div', '[data-code-line]']) {
+      const candidates = [...root.querySelectorAll(selector)].map((line) => line.textContent || '');
+      if (candidates.length > 1 && candidates.some((line) => /\S/.test(line))) { lines = candidates; break; }
+    }
+    if (lines.length > 1) break;
   }
+  const raw = code?.textContent || '';
+  const value = lines.length > 1
+    ? lines.join('\n')
+    : raw.includes('\n') ? raw : (code as HTMLElement | null)?.innerText || raw || source.textContent || '';
   return value.replace(/\r\n?/g, '\n').replace(/\n+$/, '');
 }
 

@@ -235,6 +235,8 @@ function legacyBlockMarkdown(block: WebDocument['blocks'][number]) {
   if (block.kind === 'quote') return text.split('\n').map((line) => `> ${line}`).join('\n');
   if (block.kind === 'code') return `\`\`\`${block.language || 'text'}\n${block.text}\n\`\`\``;
   if (block.kind === 'table') return `\`\`\`text\n${block.text}\n\`\`\``;
+  if (block.kind === 'box') return `> [!NOTE] 시각화 요약\n>\n> ${text}`;
+  if (block.kind === 'annotation') return `> [!IMPORTANT] 주석\n>\n> ${text}`;
   return text;
 }
 
