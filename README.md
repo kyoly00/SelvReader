@@ -3,6 +3,11 @@
 > PDF와 AI 대화 답변을 읽으면서, 선택한 문맥을 바탕으로 질문·번역·하이라이트·메모를 남길 수 있는 개인용 Chrome 확장 프로그램입니다.
 
 SelvReader는 논문이나 긴 AI 답변을 읽을 때 창을 오가며 문맥을 다시 복사하는 흐름을 줄이는 것을 목표로 합니다. API 키는 사용자가 직접 입력하며, 문서와 메모는 브라우저 로컬 저장소에 보관합니다.
+### 논문 리더 예시
+<img width="2554" height="1327" alt="image" src="https://github.com/user-attachments/assets/53763dda-a3fd-4c73-8bd5-03637e74117e" />
+
+### ChatGPT 리더 예시
+<img width="2559" height="1332" alt="image" src="https://github.com/user-attachments/assets/c3b94074-6d10-46e2-9f71-6f7a988c5abd" />
 
 ## 주요 기능
 
